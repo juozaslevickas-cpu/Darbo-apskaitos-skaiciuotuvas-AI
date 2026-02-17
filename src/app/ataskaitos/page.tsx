@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useEmployeeStore } from '@/store/employee-store';
 import { useScheduleStore } from '@/store/schedule-store';
 import BalanceCard from '@/components/reports/BalanceCard';
@@ -31,6 +31,13 @@ export default function AtaskaitosPage() {
 
   const employees = useEmployeeStore((s) => s.employees);
   const getMonthEntries = useScheduleStore((s) => s.getMonthEntries);
+  const fetchMonthEntries = useScheduleStore((s) => s.fetchMonthEntries);
+
+  useEffect(() => {
+    for (const emp of employees) {
+      fetchMonthEntries(emp.id, year, month);
+    }
+  }, [employees, year, month, fetchMonthEntries]);
 
   const reportData = useMemo<EmployeeReportData[]>(() => {
     return employees

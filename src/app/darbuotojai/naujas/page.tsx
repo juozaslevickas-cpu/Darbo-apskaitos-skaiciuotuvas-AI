@@ -27,10 +27,14 @@ export default function NaujasDarbuotojasPage() {
         <div className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
           <EmployeeForm
             submitLabel="Sukurti darbuotoją"
-            onSubmit={(data) => {
-              addEmployee(data);
-              addToast('Darbuotojas sukurtas');
-              router.push('/darbuotojai');
+            onSubmit={async (data) => {
+              try {
+                await addEmployee(data);
+                addToast('Darbuotojas sukurtas');
+                router.push('/darbuotojai');
+              } catch {
+                addToast('Nepavyko sukurti darbuotojo', 'error');
+              }
             }}
           />
         </div>

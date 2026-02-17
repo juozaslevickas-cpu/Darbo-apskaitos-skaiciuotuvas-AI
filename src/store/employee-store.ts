@@ -1,52 +1,74 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
 import type { Employee } from '@/models/employee';
 
 interface EmployeeStore {
   employees: Employee[];
-  addEmployee: (data: Omit<Employee, 'id'>) => string;
-  updateEmployee: (id: string, data: Partial<Employee>) => void;
-  deleteEmployee: (id: string) => void;
+  loaded: boolean;
+  fetchEmployees: () => Promise<void>;
+  addEmployee: (data: Omit<Employee, 'id'>) => Promise<string>;
+  updateEmployee: (id: string, data: Partial<Employee>) => Promise<void>;
+  deleteEmployee: (id: string) => Promise<void>;
   getEmployee: (id: string) => Employee | undefined;
 }
 
-export const useEmployeeStore = create<EmployeeStore>()(
-  persist(
-    (set, get) => ({
-      employees: [],
+export const useEmployeeStore = create<EmployeeStore>()((set, get) => ({
+  employees: [],
+  loaded: false,
 
-      addEmployee: (data) => {
-        const id = uuidv4();
-        const employee: Employee = { ...data, id };
-        set((state) => ({
-          employees: [...state.employees, employee],
-        }));
-        return id;
-      },
-
-      updateEmployee: (id, data) => {
-        set((state) => ({
-          employees: state.employees.map((e) =>
-            e.id === id ? { ...e, ...data } : e
-          ),
-        }));
-      },
-
-      deleteEmployee: (id) => {
-        set((state) => ({
-          employees: state.employees.filter((e) => e.id !== id),
-        }));
-      },
-
-      getEmployee: (id) => {
-        return get().employees.find((e) => e.id === id);
-      },
-    }),
-    {
-      name: 'darbo-apskaita-employees',
+  fetchEmployees: async () => {
+    try {
+      const res = await fetch('/api/employees');
+      if (!res.ok) throw new Error('Failed to fetch employees');
+      const data = await res.json();
+      set({ employees: data, loaded: true });
+    } catch (err) {
+      console.error('fetchEmployees error:', err);
+      set({ loaded: true });
     }
-  )
-);
+  },
+
+  addEmployee: async (data) => {
+    const res = await fetch('/api/employees', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to add employee');
+    const employee = await res.json();
+    set((state) => ({
+      employees: [employee, ...state.employees],
+    }));
+    return employee.id;
+  },
+
+  updateEmployee: async (id, data) => {
+    const res = await fetch(`/api/employees/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update employee');
+    const updated = await res.json();
+    set((state) => ({
+      employees: state.employees.map((e) =>
+        e.id === id ? { ...e, ...updated } : e
+      ),
+    }));
+  },
+
+  deleteEmployee: async (id) => {
+    const res = await fetch(`/api/employees/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete employee');
+    set((state) => ({
+      employees: state.employees.filter((e) => e.id !== id),
+    }));
+  },
+
+  getEmployee: (id) => {
+    return get().employees.find((e) => e.id === id);
+  },
+}));

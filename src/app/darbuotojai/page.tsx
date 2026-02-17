@@ -46,10 +46,14 @@ export default function DarbuotojaiPage() {
               <EmployeeCard
                 key={emp.id}
                 employee={emp}
-                onDelete={(id) => {
-                  deleteEmployeeEntries(id);
-                  deleteEmployee(id);
-                  addToast('Darbuotojas ištrintas');
+                onDelete={async (id) => {
+                  try {
+                    await deleteEmployeeEntries(id);
+                    await deleteEmployee(id);
+                    addToast('Darbuotojas ištrintas');
+                  } catch {
+                    addToast('Nepavyko ištrinti darbuotojo', 'error');
+                  }
                 }}
               />
             ))}

@@ -48,10 +48,14 @@ export default function RedaguotiDarbuotojaPage() {
           <EmployeeForm
             initial={employee}
             submitLabel="Atnaujinti"
-            onSubmit={(data) => {
-              updateEmployee(id, data);
-              addToast('Darbuotojas atnaujintas');
-              router.push('/darbuotojai');
+            onSubmit={async (data) => {
+              try {
+                await updateEmployee(id, data);
+                addToast('Darbuotojas atnaujintas');
+                router.push('/darbuotojai');
+              } catch {
+                addToast('Nepavyko atnaujinti darbuotojo', 'error');
+              }
             }}
           />
         </div>

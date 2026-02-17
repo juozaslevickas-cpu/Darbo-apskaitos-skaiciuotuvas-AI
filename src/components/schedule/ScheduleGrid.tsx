@@ -15,7 +15,7 @@ interface ScheduleGridProps {
   employee: Employee;
   year: number;
   month: number;
-  onUpdateEntry: (entry: ScheduleEntry) => void;
+  onUpdateEntry: (entry: ScheduleEntry) => void | Promise<void>;
 }
 
 export default function ScheduleGrid({

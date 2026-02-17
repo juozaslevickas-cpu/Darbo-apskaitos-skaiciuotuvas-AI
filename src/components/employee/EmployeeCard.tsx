@@ -7,7 +7,7 @@ import ConfirmDialog from '@/components/layout/ConfirmDialog';
 
 interface EmployeeCardProps {
   employee: Employee;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | Promise<void>;
 }
 
 export default function EmployeeCard({ employee, onDelete }: EmployeeCardProps) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useEmployeeStore } from '@/store/employee-store';
 import { useScheduleStore } from '@/store/schedule-store';
 import { useSettingsStore } from '@/store/settings-store';
@@ -20,10 +20,18 @@ export default function ZiniarastisPage() {
 
   const employees = useEmployeeStore((s) => s.employees);
   const getMonthEntries = useScheduleStore((s) => s.getMonthEntries);
+  const fetchMonthEntries = useScheduleStore((s) => s.fetchMonthEntries);
   const companyName = useSettingsStore((s) => s.imonesVardas);
   const addToast = useToastStore((s) => s.addToast);
 
   const employee = employees.find((e) => e.id === selectedEmployeeId) ?? employees[0];
+
+  useEffect(() => {
+    if (employee?.id) {
+      fetchMonthEntries(employee.id, year, month);
+    }
+  }, [employee?.id, year, month, fetchMonthEntries]);
+
   const entries = employee ? getMonthEntries(employee.id, year, month) : [];
   const monthData = useMonthData(entries, employee, year, month);
 

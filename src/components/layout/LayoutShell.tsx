@@ -1,17 +1,34 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import ToastContainer from './ToastContainer';
-import { useHydration } from '@/hooks/useHydration';
+import { useEmployeeStore } from '@/store/employee-store';
+import { useSettingsStore } from '@/store/settings-store';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const hydrated = useHydration();
+  const [ready, setReady] = useState(false);
+
+  const fetchEmployees = useEmployeeStore((s) => s.fetchEmployees);
+  const employeesLoaded = useEmployeeStore((s) => s.loaded);
+  const fetchSettings = useSettingsStore((s) => s.fetchSettings);
+  const settingsLoaded = useSettingsStore((s) => s.loaded);
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchSettings();
+  }, [fetchEmployees, fetchSettings]);
+
+  useEffect(() => {
+    if (employeesLoaded && settingsLoaded) {
+      setReady(true);
+    }
+  }, [employeesLoaded, settingsLoaded]);
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
-  if (!hydrated) {
+  if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3">

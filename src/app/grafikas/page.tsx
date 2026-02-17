@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useEmployeeStore } from '@/store/employee-store';
 import { useScheduleStore } from '@/store/schedule-store';
 import { useSettingsStore } from '@/store/settings-store';
@@ -16,6 +16,7 @@ export default function GrafikasPage() {
 
   const employees = useEmployeeStore((s) => s.employees);
   const getMonthEntries = useScheduleStore((s) => s.getMonthEntries);
+  const fetchMonthEntries = useScheduleStore((s) => s.fetchMonthEntries);
   const setEntry = useScheduleStore((s) => s.setEntry);
   const initializeMonth = useScheduleStore((s) => s.initializeMonth);
   const defaultPietuPertrauka = useSettingsStore((s) => s.defaultPietuPertrauka);
@@ -23,6 +24,12 @@ export default function GrafikasPage() {
 
   const employee = employees.find((e) => e.id === selectedEmployeeId) ?? employees[0];
   const effectiveId = employee?.id ?? null;
+
+  useEffect(() => {
+    if (effectiveId) {
+      fetchMonthEntries(effectiveId, year, month);
+    }
+  }, [effectiveId, year, month, fetchMonthEntries]);
 
   const entries = effectiveId ? getMonthEntries(effectiveId, year, month) : [];
 
@@ -44,15 +51,23 @@ export default function GrafikasPage() {
     }
   }, [month]);
 
-  const handleInitialize = () => {
+  const handleInitialize = async () => {
     if (effectiveId) {
-      initializeMonth(effectiveId, year, month, defaultPietuPertrauka);
-      addToast('Mėnuo inicializuotas');
+      try {
+        await initializeMonth(effectiveId, year, month, defaultPietuPertrauka);
+        addToast('Mėnuo inicializuotas');
+      } catch {
+        addToast('Nepavyko inicializuoti mėnesio', 'error');
+      }
     }
   };
 
-  const handleUpdateEntry = (updated: ScheduleEntry) => {
-    setEntry(updated);
+  const handleUpdateEntry = async (updated: ScheduleEntry) => {
+    try {
+      await setEntry(updated);
+    } catch {
+      addToast('Nepavyko išsaugoti pakeitimo', 'error');
+    }
   };
 
   return (

@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Employee {
+  id                            String   @id @default(uuid())
+  vardas                        String
+  pavarde                       String
+  pareigos                      String
+  etatas                        Float    @default(1.0)
+  savaitineNorma                Int      @default(40)
+  darboSutartiesPradzia         String
+  sumineApskaita                Boolean  @default(true)
+  apskaitinisLaikotarpisMenesiai Int     @default(1)
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  scheduleEntries ScheduleEntry[]
+}
+
+model ScheduleEntry {
+  id                String  @id @default(uuid())
+  darbuotojoId      String
+  data              String
+  tipas             String
+  pamainosPradzia   String?
+  pamainosPabaiga   String?
+  pietuPertraukaMin Int     @default(60)
+  neatvykimoKodas   String?
+  pastaba           String?
+
+  employee Employee @relation(fields: [darbuotojoId], references: [id], onDelete: Cascade)
+
+  @@index([darbuotojoId, data])
+  @@unique([darbuotojoId, data])
+}
+
+model Settings {
+  id                            Int    @id @default(1)
+  imonesVardas                  String @default("")
+  defaultPietuPertrauka         Int    @default(60)
+  apskaitinisLaikotarpisMenesiai Int   @default(1)
+}
