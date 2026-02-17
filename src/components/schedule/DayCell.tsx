@@ -116,7 +116,7 @@ export default function DayCell({
           <input
             type="number"
             value={entry.pietuPertraukaMin}
-            onChange={(e) => onUpdate({ ...entry, pietuPertraukaMin: Number(e.target.value) })}
+            onChange={(e) => onUpdate({ ...entry, pietuPertraukaMin: Number(e.target.value) || 0 })}
             className="w-16 rounded border border-slate-200 bg-transparent px-1.5 py-1 text-xs text-center focus:border-blue-400 focus:outline-none"
             min={0}
             max={120}

@@ -78,11 +78,14 @@ export default function TimesheetTable({
     return '';
   };
 
+  const dailyNormHours = (employee.savaitineNorma / 5) * employee.etatas;
+  const dailyNormDisplay = hoursToDisplay(dailyNormHours * 60);
+
   const getRow4Cell = (day: number): string => {
     const entry = entryByDay[day];
     if (!entry) return '';
     for (const code of ABSENCE_AS_WORK_CODES) {
-      if (entry.tipas === code) return `${code} 8`;
+      if (entry.tipas === code) return `${code} ${dailyNormDisplay}`;
     }
     return '';
   };

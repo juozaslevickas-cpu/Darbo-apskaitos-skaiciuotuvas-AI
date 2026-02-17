@@ -7,11 +7,36 @@ import { calculateShiftDuration } from '@/services/shift-calculator';
 import { calculateNightMinutes } from '@/services/night-calculator';
 import { hoursToDisplay } from '@/utils/format-utils';
 
+const FONT_URL =
+  'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf';
+let cachedFontBase64: string | null = null;
+
+async function loadUnicodeFont(doc: jsPDF): Promise<void> {
+  try {
+    if (!cachedFontBase64) {
+      const response = await fetch(FONT_URL);
+      if (!response.ok) return;
+      const buffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      cachedFontBase64 = btoa(binary);
+    }
+    doc.addFileToVFS('DejaVuSans.ttf', cachedFontBase64);
+    doc.addFont('DejaVuSans.ttf', 'DejaVuSans', 'normal');
+    doc.setFont('DejaVuSans');
+  } catch {
+    // Fallback: naudoti standartinį šriftą (be lietuviškų simbolių)
+  }
+}
+
 /**
  * Generuoja žiniaraščio PDF failą (A4 landscape).
  * 3 eilutės per darbuotoją: dirbta/neatvykimai, nukrypimai, neatvykimai kaip darbas.
  */
-export function exportTimesheetPDF(
+export async function exportTimesheetPDF(
   entries: ScheduleEntry[],
   employee: Employee,
   year: number,
@@ -19,6 +44,7 @@ export function exportTimesheetPDF(
   companyName: string = ''
 ) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  await loadUnicodeFont(doc);
   const daysInMonth = getDaysInMonthCount(year, month);
   const monthName = getMonthNameLT(month);
 
@@ -80,11 +106,12 @@ export function exportTimesheetPDF(
   row2.push(totalNight > 0 ? `DN ${hoursToDisplay(totalNight)}` : '');
   row3.push('');
 
+  const fontName = cachedFontBase64 ? 'DejaVuSans' : 'helvetica';
   autoTable(doc, {
     startY: 34,
     head: [columns],
     body: [row1, row2, row3],
-    styles: { fontSize: 6, cellPadding: 1.5, halign: 'center' },
+    styles: { fontSize: 6, cellPadding: 1.5, halign: 'center', font: fontName },
     headStyles: { fillColor: [71, 85, 105], fontSize: 6 },
     columnStyles: { 0: { halign: 'left', cellWidth: 28 } },
     theme: 'grid',

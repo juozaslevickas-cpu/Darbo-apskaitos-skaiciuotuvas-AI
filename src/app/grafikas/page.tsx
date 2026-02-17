@@ -10,9 +10,8 @@ import Header from '@/components/layout/Header';
 import type { ScheduleEntry } from '@/models/schedule-entry';
 
 export default function GrafikasPage() {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const [month, setMonth] = useState(() => new Date().getMonth() + 1);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
 
   const employees = useEmployeeStore((s) => s.employees);
@@ -64,7 +63,7 @@ export default function GrafikasPage() {
         month={month}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
-        onToday={() => { setYear(now.getFullYear()); setMonth(now.getMonth() + 1); }}
+        onToday={() => { const n = new Date(); setYear(n.getFullYear()); setMonth(n.getMonth() + 1); }}
       >
         <select
           value={effectiveId ?? ''}

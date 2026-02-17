@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEmployeeStore } from '@/store/employee-store';
+import { useScheduleStore } from '@/store/schedule-store';
 import { useToastStore } from '@/store/toast-store';
 import EmployeeCard from '@/components/employee/EmployeeCard';
 import Header from '@/components/layout/Header';
@@ -9,6 +10,7 @@ import Header from '@/components/layout/Header';
 export default function DarbuotojaiPage() {
   const employees = useEmployeeStore((s) => s.employees);
   const deleteEmployee = useEmployeeStore((s) => s.deleteEmployee);
+  const deleteEmployeeEntries = useScheduleStore((s) => s.deleteEmployeeEntries);
   const addToast = useToastStore((s) => s.addToast);
 
   return (
@@ -45,6 +47,7 @@ export default function DarbuotojaiPage() {
                 key={emp.id}
                 employee={emp}
                 onDelete={(id) => {
+                  deleteEmployeeEntries(id);
                   deleteEmployee(id);
                   addToast('Darbuotojas ištrintas');
                 }}

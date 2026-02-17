@@ -108,7 +108,7 @@ export default function ShiftEntryForm({
           <input
             type="number"
             value={entry.pietuPertraukaMin}
-            onChange={(e) => onUpdate({ ...entry, pietuPertraukaMin: Number(e.target.value) })}
+            onChange={(e) => onUpdate({ ...entry, pietuPertraukaMin: Number(e.target.value) || 0 })}
             className="input w-32"
             min={0}
             max={120}

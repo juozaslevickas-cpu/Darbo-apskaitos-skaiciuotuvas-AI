@@ -13,9 +13,8 @@ import { exportTimesheetPDF } from '@/utils/export-pdf';
 import { exportTimesheetExcel } from '@/utils/export-excel';
 
 export default function ZiniarastisPage() {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const [month, setMonth] = useState(() => new Date().getMonth() + 1);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
@@ -28,11 +27,11 @@ export default function ZiniarastisPage() {
   const entries = employee ? getMonthEntries(employee.id, year, month) : [];
   const monthData = useMonthData(entries, employee, year, month);
 
-  const handlePdfExport = () => {
+  const handlePdfExport = async () => {
     if (!employee || entries.length === 0 || exporting) return;
     setExporting('pdf');
     try {
-      exportTimesheetPDF(entries, employee, year, month, companyName);
+      await exportTimesheetPDF(entries, employee, year, month, companyName);
       addToast('PDF eksportuotas');
     } catch {
       addToast('Nepavyko eksportuoti PDF', 'error');
@@ -68,7 +67,7 @@ export default function ZiniarastisPage() {
           if (month === 12) { setMonth(1); setYear((y) => y + 1); }
           else setMonth((m) => m + 1);
         }}
-        onToday={() => { setYear(now.getFullYear()); setMonth(now.getMonth() + 1); }}
+        onToday={() => { const n = new Date(); setYear(n.getFullYear()); setMonth(n.getMonth() + 1); }}
       >
         <select
           value={employee?.id ?? ''}

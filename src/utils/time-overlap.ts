@@ -38,6 +38,7 @@ export function shiftDurationMinutes(start: string, end: string): number {
   const startMin = timeToMinutes(start);
   const endMin = timeToMinutes(end);
 
+  if (endMin === startMin) return 0;
   if (endMin > startMin) {
     return endMin - startMin;
   }
@@ -86,6 +87,9 @@ export function nightMinutes(shiftStart: string, shiftEnd: string): number {
   const NIGHT_EVENING_END = 1440; // 24:00 (vidurnaktis)
   const NIGHT_MORNING_START = 0; // 00:00
   const NIGHT_MORNING_END = 360; // 06:00
+
+  // Jei pradžia ir pabaiga sutampa – nėra pamainos
+  if (startMin === endMin) return 0;
 
   // Sukurti pamainos segmentus
   const segments: [number, number][] = [];

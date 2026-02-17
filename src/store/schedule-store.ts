@@ -17,6 +17,7 @@ interface ScheduleStore {
   setEntry: (entry: ScheduleEntry) => void;
   getMonthEntries: (employeeId: string, year: number, month: number) => ScheduleEntry[];
   deleteEntry: (entryId: string, employeeId: string, year: number, month: number) => void;
+  deleteEmployeeEntries: (employeeId: string) => void;
   bulkSetEntries: (employeeId: string, year: number, month: number, entries: ScheduleEntry[]) => void;
   initializeMonth: (employeeId: string, year: number, month: number, defaultPietuPertrauka?: number) => void;
 }
@@ -67,6 +68,19 @@ export const useScheduleStore = create<ScheduleStore>()(
             [key]: (state.entries[key] || []).filter((e) => e.id !== entryId),
           },
         }));
+      },
+
+      deleteEmployeeEntries: (employeeId) => {
+        set((state) => {
+          const prefix = `${employeeId}_`;
+          const filtered: Record<string, ScheduleEntry[]> = {};
+          for (const [key, value] of Object.entries(state.entries)) {
+            if (!key.startsWith(prefix)) {
+              filtered[key] = value;
+            }
+          }
+          return { entries: filtered };
+        });
       },
 
       bulkSetEntries: (employeeId, year, month, newEntries) => {

@@ -169,10 +169,10 @@ describe('nightMinutes', () => {
     expect(nightMinutes('06:00', '14:00')).toBe(0);
   });
 
-  it('24h pamaina 00:00-00:00 (visą parą) – neturėtų crash', () => {
-    // 00:00-00:00 = 0 trukmė (end === start), bet kaip kertanti vidurnaktį
-    // gaus 1440 min trukmę, nakties = 480
+  it('00:00-00:00 (pradžia === pabaiga) → 0 min (nėra pamainos)', () => {
+    // Kai pradžia ir pabaiga sutampa, pamainos trukmė = 0, todėl nakties val. = 0.
+    // Tai apsaugo nuo klaidingo 24h skaičiavimo, kai vartotojas nurodo vienodą laiką.
     const result = nightMinutes('00:00', '00:00');
-    expect(result).toBe(480); // [22:00-24:00] + [00:00-06:00] = 120+360
+    expect(result).toBe(0);
   });
 });
